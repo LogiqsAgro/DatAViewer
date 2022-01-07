@@ -80,54 +80,6 @@ public class ConfigLoader : MonoBehaviour
         public string Type;
     }
 
-    /* <Store Id="In2">
-  <Description>Store 'In2'. A store of type PipeRun with a capacity of 1.</Description>
-  <DisplayName>In2</DisplayName>
-  <ShortDisplayName>In2</ShortDisplayName>
-  <Dimension>
-    <X>1</X>
-    <Y>1</Y>
-    <Z>1</Z>
-  </Dimension>
-  <Orientation>
-    <X>0</X>
-    <Y>-1</Y>
-    <Z>0</Z>
-  </Orientation>
-  <Position>
-    <X>7</X>
-    <Y>1</Y>
-    <Z>0</Z>
-  </Position>
-  <ParentElementId>In2</ParentElementId>
-  <ParentElementType>StaticTransportMachine</ParentElementType>
-  <PhysicalBounds X="5" Y="1" Z="0" Length="1" Width="1" Height="1" />
-  <BenchSize>
-    <X>1</X>
-    <Y>1</Y>
-    <Z>1</Z>
-  </BenchSize>
-  <Capacity>1</Capacity>
-  <ClaimCapacity>1</ClaimCapacity>
-  <TransferPoints>
-    <TransferPoint Id="In2">
-      <Description>Transfer Point 'In2'.</Description>
-      <DisplayName>In2</DisplayName>
-      <ShortDisplayName>In2</ShortDisplayName>
-      <HasPositiveDirection>false</HasPositiveDirection>
-      <MayEnter>true</MayEnter>
-      <MayLeave>true</MayLeave>
-      <PullCount>1</PullCount>
-      <MayPush>false</MayPush>
-      <ShiftGapsOnPull>true</ShiftGapsOnPull>
-      <JoinBenches>false</JoinBenches>
-      <StoreId>In2</StoreId>
-      <StoreIndex>0</StoreIndex>
-    </TransferPoint>
-  </TransferPoints>
-  <Type>PipeRun</Type>
-</Store>*/
-
     public GameObject PhysicalBoundsPrefab;
     public GameObject TransferPointPrefab;
 
@@ -136,13 +88,43 @@ public class ConfigLoader : MonoBehaviour
 
     public GameObject ParentObject;
     // Start is called before the first frame update
+
+    private FileSystemWatcher watcher;
+
+    private bool shouldReload = true;
+
     void Start()
     {
-        var serializer = new XmlSerializer(typeof(Root));
-        using var stream = new FileStream("BenchSystem.config", FileMode.Open);
-        // Call the Deserialize method and cast to the object type.
-        var root = (Root) serializer.Deserialize(stream);
+        watcher = new FileSystemWatcher(".", "BenchSystem.config");
+        watcher.NotifyFilter = NotifyFilters.Attributes
+                                 | NotifyFilters.CreationTime
+                                 | NotifyFilters.DirectoryName
+                                 | NotifyFilters.FileName
+                                 | NotifyFilters.LastAccess
+                                 | NotifyFilters.LastWrite
+                                 | NotifyFilters.Security
+                                 | NotifyFilters.Size;
+        watcher.Changed += (sender, @event) => shouldReload = true;
+        watcher.Created += (sender, @event) => shouldReload = true;
+        watcher.Deleted += (sender, @event) => shouldReload = true;
+        watcher.Renamed += (sender, @event) => shouldReload = true;
+        watcher.EnableRaisingEvents = true;
+    }
 
+    private void LoadConfiguration(string path)
+    {
+        // Open stream first so that a failure to open will be caused before we delete anything.
+        using var stream = new FileStream(path, FileMode.Open);
+
+        for (var n = ParentObject.transform.childCount; n > 0;)
+        {
+            Destroy(ParentObject.transform.GetChild(--n).gameObject);
+        }
+
+        Debug.LogFormat("Loading configuration from {0}...", path); 
+        var serializer = new XmlSerializer(typeof(Root));
+        var root = (Root) serializer.Deserialize(stream);
+        
         foreach (var store in root.Stores)
         {
             if (store.PhysicalBounds is null)
@@ -212,6 +194,8 @@ public class ConfigLoader : MonoBehaviour
                 tpObjectBottom.name = "TransferPoint " + tp.DisplayName;
             }
         }
+
+        Debug.LogFormat("Loaded configuration from {0}.", path);
     }
 
     private static float Lerp(float x, float x0, float x1, float y0, float y1)
@@ -219,9 +203,21 @@ public class ConfigLoader : MonoBehaviour
         return (y0 * (x1 - x) + y1 * (x - x0)) / (x1 - x0);
     }
 
-    // Update is called once per frame
     void Update()
     {
-        
+        if (shouldReload)
+        {
+            try
+            {
+                LoadConfiguration("BenchSystem.config");
+                shouldReload = false;
+            } catch (IOException e) when ((e.HResult & 0x0000FFFF) == 32) {
+                // Sharing violation, see https://docs.microsoft.com/en-us/dotnet/standard/io/handling-io-errors
+            } catch (FileNotFoundException)
+            {
+                // Stop trying, the file watcher will trigger again when something changes.
+                shouldReload = false;
+            }
+        }
     }
 }

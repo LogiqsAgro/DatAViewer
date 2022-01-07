@@ -45,10 +45,17 @@ public class Picker : MonoBehaviour
     {
         if (hitColor is Color color)
         {
-            Debug.Assert(lastHitObject != null); // should be the case when hitColor is set.
-            var meshRenderer = lastHitObject.GetComponent<MeshRenderer>();
-            Debug.Assert(meshRenderer != null); // should be the case when hitColor is set, unless it's been removed.
-            meshRenderer.material.color = color;
+            try
+            {
+                if (lastHitObject != null)
+                {
+                    var meshRenderer = lastHitObject.GetComponent<MeshRenderer>();
+                    if (meshRenderer != null) {
+                        meshRenderer.material.color = color;
+                    }
+                }
+            }
+            catch (MissingReferenceException) { }
             hitColor = null;
         }
         lastHitObject = null;
