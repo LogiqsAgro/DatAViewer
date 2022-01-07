@@ -200,9 +200,16 @@ public class ConfigLoader : MonoBehaviour
             {
                 var h = (xOri ? dimensions.x : dimensions.z) * 0.5f;
                 var d = Lerp(tp.StoreIndex + 0.5f, 0, store.Capacity, h, -h);
-                var tpObject = Instantiate(TransferPointPrefab, storeObject.transform);
-                tpObject.transform.localPosition = new UnityEngine.Vector3(xOri ? d : 0, 0, xOri ? 0 : d); 
-                tpObject.name = "TransferPoint " + tp.DisplayName;
+
+                var tpObjectTop = Instantiate(TransferPointPrefab, storeObject.transform);
+                tpObjectTop.transform.localPosition = new UnityEngine.Vector3(xOri ? d : 0, dimensions.y / 2 - 0.125f, xOri ? 0 : d);
+                tpObjectTop.transform.localScale = new UnityEngine.Vector3(0.5f, 0.5f, 0.5f);
+                tpObjectTop.name = "TransferPoint " + tp.DisplayName;
+
+                var tpObjectBottom = Instantiate(TransferPointPrefab, storeObject.transform);
+                tpObjectBottom.transform.localPosition = new UnityEngine.Vector3(xOri ? d : 0, -dimensions.y / 2 + 0.125f, xOri ? 0 : d);
+                tpObjectBottom.transform.localScale = new UnityEngine.Vector3(0.5f, 0.5f, 0.5f);
+                tpObjectBottom.name = "TransferPoint " + tp.DisplayName;
             }
         }
     }
