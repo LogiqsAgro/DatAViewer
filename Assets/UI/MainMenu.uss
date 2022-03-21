@@ -1,0 +1,7 @@
+.unity-base-field__label {
+    min-width: 200px;
+}
+
+.unity-toggle__checkmark {
+    margin-left: 2px;
+}
