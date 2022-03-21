@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(Camera))]
 public class FlyCamera : MonoBehaviour
@@ -55,7 +56,10 @@ public class FlyCamera : MonoBehaviour
 
         // Leave cursor lock
         if (Input.GetKeyDown(KeyCode.Escape))
+        {
             Focused = false;
+            SceneManager.LoadScene("MainMenuScene");
+        }
     }
 
     Vector3 GetAccelerationVector()

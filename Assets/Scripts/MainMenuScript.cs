@@ -1,55 +1,36 @@
-using System.Collections;
-using System.Collections.Generic;
+using System;
+
 using UnityEngine;
 using UnityEngine.UIElements;
+using UnityEngine.SceneManagement;
 public class MainMenuScript : MonoBehaviour
 {
-    [SerializeField] private bool _AutoStartControlPort;
-    [SerializeField] private bool _AutoReloadOnChange;
-    [SerializeField] private int _ControlPort;
-    [SerializeField] private string _ConfigurationLocation;
-
-    public bool AutoStartControlPort
-    {
-        get => _AutoStartControlPort;
-        set => _AutoStartControlPort = value;
-    }
-
-    public bool AutoReloadOnChange
-    {
-        get => _AutoReloadOnChange;
-        set => _AutoReloadOnChange = value;
-    }
-
-    public int ControlPort
-    {
-        get => _ControlPort;
-        set => _ControlPort = value;
-    }
-
-    public string ConfigurationLocation
-    {
-        get => _ConfigurationLocation;
-        set => _ConfigurationLocation = value;
-    }
-
+    private SettingsScript Settings;
 
     // Start is called before the first frame update
     void Start()
     {
-        var btn = GetVisualElementRoot().Q<Button>(name: "OKButton");
+        Settings = gameObject.GetComponent<SettingsScript>();
+        var ui = GetVisualElementRoot();
+        var btn = ui.Q<Button>(name: "OKButton");
         btn.clicked += OnOKButtonClicked;
-    }
 
-    // Update is called once per frame
-    void Update()
-    {
+        ui.Q<Toggle>("AutoReloadCheckBox").value = Settings.AutoReloadConfiguration;
+        ui.Q<Toggle>("AutoReloadCheckBox").RegisterValueChangedCallback(e => Settings.AutoReloadConfiguration = e.newValue);
 
+        ui.Q<TextField>("ConfigurationLocationTextInput").value = Settings.ConfigurationLocation;
+        ui.Q<TextField>("ConfigurationLocationTextInput").RegisterValueChangedCallback(e => Settings.ConfigurationLocation = e.newValue);
+
+        ui.Q<Toggle>("AutoConnectCheckBox").value = Settings.AutoConnect;
+        ui.Q<Toggle>("AutoConnectCheckBox").RegisterValueChangedCallback(e => Settings.AutoConnect = e.newValue);
+
+        ui.Q<TextField>("ServerNameTextField").value = Settings.ServerName;
+        ui.Q<TextField>("ServerNameTextField").RegisterValueChangedCallback(e => Settings.ServerName = e.newValue);
     }
 
     VisualElement GetVisualElementRoot()
     {
-        var doc = this.GetComponentInParent<UIDocument>();
+        var doc = gameObject.GetComponent<UIDocument>();
         if (doc == null) return null;
         return doc.rootVisualElement;
     }
@@ -57,13 +38,6 @@ public class MainMenuScript : MonoBehaviour
     void OnOKButtonClicked()
     {
         var btn = GetVisualElementRoot().Q<Button>(name: "OKButton");
-        if (btn.text == "OK")
-        {
-            btn.text = "OK (TODO Change scene to world view)";
-        }
-        else
-        {
-            btn.text = "OK";
-        }
+        SceneManager.LoadScene("WorldScene");
     }
 }

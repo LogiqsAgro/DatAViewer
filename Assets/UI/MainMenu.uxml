@@ -3,10 +3,10 @@
     <ui:VisualElement style="align-items: center; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; justify-content: center; flex-grow: 1;">
         <ui:VisualElement style="background-color: rgba(94, 141, 187, 0.72); border-left-width: 4px; border-right-width: 4px; border-top-width: 4px; border-bottom-width: 4px; border-top-left-radius: 5px; border-bottom-left-radius: 5px; border-top-right-radius: 5px; border-bottom-right-radius: 5px; padding-left: 10px; padding-right: 10px; padding-top: 10px; padding-bottom: 10px; min-width: 600px; border-left-color: rgb(33, 52, 202); border-right-color: rgb(33, 52, 202); border-top-color: rgb(33, 52, 202); border-bottom-color: rgb(33, 52, 202);">
             <ui:Label text="Settings" display-tooltip-when-elided="true" name="MenuLabel" style="margin-left: 5px; margin-right: 5px; margin-top: 5px; margin-bottom: 5px; -unity-font-style: bold; font-size: 14px;" />
-            <ui:TextField picking-mode="Ignore" label="Configuration Location" text="%LOGIQSDIR%" name="ConfigurationLocationTextInput" tabindex="3" style="font-size: 14px; height: 40px;" />
-            <ui:Toggle label="Auto Reload On Change" name="AutoReloadCheckBox" style="justify-content: flex-start; font-size: 14px;" />
-            <ui:TextField picking-mode="Ignore" label="Control Port                             " value="9321" text="9321" readonly="true" name="ControlPort" style="font-size: 14px;" />
-            <ui:Toggle label="Auto Start Control Port" name="ControlPortCheckBox" style="font-size: 14px;" />
+            <ui:TextField label="Configuration Location" name="ConfigurationLocationTextInput" tabindex="1" binding-path="ConfigurationLocation" style="font-size: 14px; height: 40px;" />
+            <ui:Toggle label="Auto Reload Configuration" name="AutoReloadCheckBox" binding-path="AutoReloadConfiguration" tabindex="2" style="justify-content: flex-start; font-size: 14px;" />
+            <ui:TextField label="Server" readonly="false" name="ServerNameTextField" binding-path="ServerName" tabindex="3" style="font-size: 14px;" />
+            <ui:Toggle label="Auto Connect To Server" name="AutoConnectCheckBox" value="false" binding-path="AutoConnect" tabindex="4" style="font-size: 14px;" />
             <ui:VisualElement style="flex-direction: row; align-items: stretch; justify-content: flex-end; flex-basis: auto; flex-wrap: nowrap;">
                 <ui:Button text="OK" display-tooltip-when-elided="true" name="OKButton" tabindex="4" style="position: relative; align-items: flex-end; flex-shrink: 1; min-width: 80px;" />
             </ui:VisualElement>

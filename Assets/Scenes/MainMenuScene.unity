@@ -217,6 +217,7 @@ GameObject:
   - component: {fileID: 1262205572}
   - component: {fileID: 1262205571}
   - component: {fileID: 1262205573}
+  - component: {fileID: 1262205574}
   m_Layer: 5
   m_Name: MainMenu
   m_TagString: Untagged
@@ -266,10 +267,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 52cb4362904cc644da7ff40bfa1c0972, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _AutoStartControlPort: 1
-  _AutoReloadOnChange: 1
-  _ControlPort: 0
-  _ConfigurationLocation: 
+--- !u!114 &1262205574
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1262205570}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bee40bebb143f9d4e87d08ac7846ae8e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ServerName: localhost
+  AutoConnect: 0
+  ConfigurationLocation: '%LOGIQSDIR%'
+  AutoReloadConfiguration: 0
 --- !u!1 &1397475728
 GameObject:
   m_ObjectHideFlags: 0
