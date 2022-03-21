@@ -95,7 +95,7 @@ public class ConfigLoader : MonoBehaviour
 
     void Start()
     {
-        watcher = new FileSystemWatcher(".", "BenchSystem.config");
+        watcher = new FileSystemWatcher("C:\\dev\\logiqs\\ProjectICT\\Bowery\\Bowery Farm 3", "BenchSystem.config");
         watcher.NotifyFilter = NotifyFilters.Attributes
                                  | NotifyFilters.CreationTime
                                  | NotifyFilters.DirectoryName
