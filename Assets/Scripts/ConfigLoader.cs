@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using System.Xml;
 using System.Xml.Serialization;
@@ -80,6 +78,8 @@ public class ConfigLoader : MonoBehaviour
         public string Type;
     }
 
+    const string BenchSystemConfig = "BenchSystem.config";
+
     public GameObject PhysicalBoundsPrefab;
     public GameObject TransferPointPrefab;
 
@@ -87,15 +87,20 @@ public class ConfigLoader : MonoBehaviour
     public Material TrackMaterial;
 
     public GameObject ParentObject;
-    // Start is called before the first frame update
 
     private FileSystemWatcher watcher;
 
     private bool shouldReload = true;
 
+    private SettingsScript settingsScript;
+
+
+    // Start is called before the first frame update
     void Start()
     {
-        watcher = new FileSystemWatcher("C:\\dev\\logiqs\\ProjectICT\\Bowery\\Bowery Farm 3", "BenchSystem.config");
+
+        settingsScript = gameObject.GetComponent<SettingsScript>();
+        watcher = new FileSystemWatcher(settingsScript.ResolvedConfigurationLocation, BenchSystemConfig);
         watcher.NotifyFilter = NotifyFilters.Attributes
                                  | NotifyFilters.CreationTime
                                  | NotifyFilters.DirectoryName
@@ -121,10 +126,11 @@ public class ConfigLoader : MonoBehaviour
             Destroy(ParentObject.transform.GetChild(--n).gameObject);
         }
 
-        Debug.LogFormat("Loading configuration from {0}...", path); 
+        Debug.LogFormat("Loading configuration from {0}...", path);
         var serializer = new XmlSerializer(typeof(Root));
-        var root = (Root) serializer.Deserialize(stream);
-        
+        var root = (Root)serializer.Deserialize(stream);
+
+        Debug.LogFormat("Loading {0} stores...", root.Stores.Length);
         foreach (var store in root.Stores)
         {
             if (store.PhysicalBounds is null)
@@ -172,10 +178,10 @@ public class ConfigLoader : MonoBehaviour
             storeObject.transform.localPosition = center;
 
             var meshObject = Instantiate(PhysicalBoundsPrefab, storeObject.transform);
-            meshObject.name = storeObject.name; 
+            meshObject.name = storeObject.name;
             meshObject.transform.localScale = dimensions;
             meshObject.GetComponent<MeshRenderer>().material = material;
-            
+
             var xOri = store.Orientation.X != 0;
 
             foreach (var tp in store.TransferPoints)
@@ -209,11 +215,14 @@ public class ConfigLoader : MonoBehaviour
         {
             try
             {
-                LoadConfiguration("BenchSystem.config");
+                LoadConfiguration(Path.Combine(settingsScript.ResolvedConfigurationLocation, BenchSystemConfig));
                 shouldReload = false;
-            } catch (IOException e) when ((e.HResult & 0x0000FFFF) == 32) {
+            }
+            catch (IOException e) when ((e.HResult & 0x0000FFFF) == 32)
+            {
                 // Sharing violation, see https://docs.microsoft.com/en-us/dotnet/standard/io/handling-io-errors
-            } catch (FileNotFoundException)
+            }
+            catch (FileNotFoundException)
             {
                 // Stop trying, the file watcher will trigger again when something changes.
                 shouldReload = false;
