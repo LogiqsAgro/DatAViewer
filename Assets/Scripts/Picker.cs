@@ -11,15 +11,10 @@ public class Picker : MonoBehaviour
 
     void Update()
     {
-        if(Camera==null)
-         return;
+        if (Camera == null)
+            return;
 
-        var mousePosition = Cursor.lockState == CursorLockMode.Locked
-            ? new Vector3(Camera.pixelWidth, Camera.pixelHeight, 0) * 0.5f
-            : Input.mousePosition;
-
-        Ray ray = Camera.ScreenPointToRay(mousePosition);
-
+        Ray ray = MouseUtils.GetMouseRay(Camera);
         GameObject? hitObject = Physics.Raycast(ray, out var hit) ? hit.transform.gameObject : null;
 
         if (hitObject != lastHitObject)
@@ -30,7 +25,7 @@ public class Picker : MonoBehaviour
             {
                 OnHitStart();
             }
-            if(PickText!= null)
+            if (PickText != null)
                 PickText.text = lastHitObject?.name ?? "";
         }
     }
@@ -55,7 +50,8 @@ public class Picker : MonoBehaviour
                 if (lastHitObject != null)
                 {
                     var meshRenderer = lastHitObject.GetComponent<MeshRenderer>();
-                    if (meshRenderer != null) {
+                    if (meshRenderer != null)
+                    {
                         meshRenderer.material.color = color;
                     }
                 }

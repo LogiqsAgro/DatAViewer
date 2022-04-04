@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(Camera))]
+[RequireComponent(typeof(KeyMap))]
 public class FlyCamera : MonoBehaviour
 {
     public float acceleration = 50; // how fast you accelerate
@@ -12,6 +13,8 @@ public class FlyCamera : MonoBehaviour
 
     Vector3 velocity; // current velocity
 
+    KeyMap keymap;
+
     static bool Focused
     {
         get => Cursor.lockState == CursorLockMode.Locked;
@@ -20,6 +23,12 @@ public class FlyCamera : MonoBehaviour
             Cursor.lockState = value ? CursorLockMode.Locked : CursorLockMode.None;
             Cursor.visible = value == false;
         }
+    }
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        keymap = GetComponent<KeyMap>();
     }
 
     void OnEnable()
@@ -33,9 +42,13 @@ public class FlyCamera : MonoBehaviour
     {
         // Input
         if (Focused)
+        {
             UpdateInput();
-        else if (Input.GetMouseButtonDown(0))
+        }
+        else if (Input.GetMouseButtonDown(keymap.MouseLockCursor))
+        {
             Focused = true;
+        }
 
         // Physics
         velocity = Vector3.Lerp(velocity, Vector3.zero, dampingCoefficient * Time.deltaTime);
@@ -55,33 +68,41 @@ public class FlyCamera : MonoBehaviour
         transform.rotation = horiz * rotation * vert;
 
         // Leave cursor lock
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (Input.GetKeyDown(keymap.UnlockCursor))
         {
             Focused = false;
+        }
+
+        if (Input.GetKeyDown(keymap.SettingsMenu))
+        {
             SceneManager.LoadScene("MainMenuScene");
         }
     }
 
     Vector3 GetAccelerationVector()
-    {
-        Vector3 moveInput = default;
-
-        void AddMovement(KeyCode key, Vector3 dir)
+    { 
+        Vector3 direction;
+        if (Input.GetMouseButton(keymap.MouseForward))
         {
-            if (Input.GetKey(key))
-                moveInput += dir;
+            var cam = GetComponent<Camera>();
+            direction = MouseUtils.GetMouseRay(cam).direction;
+        }
+        else
+        {
+            Vector3 dir = default;
+            dir += Input.GetKey(keymap.Forward) ? Vector3.forward : default;
+            dir += Input.GetKey(keymap.Back) ? Vector3.back : default;
+            dir += Input.GetKey(keymap.Right) ? Vector3.right : default;
+            dir += Input.GetKey(keymap.Left) ? Vector3.left : default;
+            dir += Input.GetKey(keymap.Up) ? Vector3.up : default;
+            dir += Input.GetKey(keymap.Down) ? Vector3.down : default;
+            direction = transform.TransformVector(dir.normalized);
         }
 
-        AddMovement(KeyCode.W, Vector3.forward);
-        AddMovement(KeyCode.S, Vector3.back);
-        AddMovement(KeyCode.D, Vector3.right);
-        AddMovement(KeyCode.A, Vector3.left);
-        AddMovement(KeyCode.Space, Vector3.up);
-        AddMovement(KeyCode.LeftControl, Vector3.down);
-        Vector3 direction = transform.TransformVector(moveInput.normalized);
-
-        if (Input.GetKey(KeyCode.LeftShift))
+        if (Input.GetKey(keymap.Sprint))
             return direction * (acceleration * accSprintMultiplier); // "sprinting"
+
         return direction * acceleration; // "walking"
     }
+
 }
